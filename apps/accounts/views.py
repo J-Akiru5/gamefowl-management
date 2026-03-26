@@ -63,6 +63,7 @@ class ProfileView(LoginRequiredMixin, UpdateView):
 class CustomLogoutView(LogoutView):
     """Custom logout view."""
     next_page = reverse_lazy('accounts:login')
+    http_method_names = ['get', 'post']  # Allow both GET and POST
 
     def dispatch(self, request, *args, **kwargs):
         messages.info(request, 'You have been logged out.')
