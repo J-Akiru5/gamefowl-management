@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}{% if object %}Edit fowl details{% else %}Register a new gamefowl{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Basic Info Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20 gradient-primary">
+                <h3 class="text-lg font-bold text-white">Basic Information</h3>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Wing Band ID</label>
+                    {{ form.wing_band }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
+                    {{ form.gender }}
+                    {% if form.gender.errors %}<p class="text-red-500 text-xs mt-1">{{ form.gender.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Breed</label>
+                    {{ form.breed }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    {{ form.status }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                    {{ form.date_of_birth }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Lineage Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20 gradient-accent">
+                <h3 class="text-lg font-bold text-white">Lineage (Parents)</h3>
+                <p class="text-sm text-white/80">Bloodline percentages will be auto-calculated from parents</p>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sire (Father)</label>
+                    {{ form.sire }}
+                    {% if form.sire.errors %}<p class="text-red-500 text-xs mt-1">{{ form.sire.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Dam (Mother)</label>
+                    {{ form.dam }}
+                    {% if form.dam.errors %}<p class="text-red-500 text-xs mt-1">{{ form.dam.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Physical Attributes Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Physical Attributes</h3>
+            </div>
+            <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Weight (kg)</label>
+                    {{ form.weight }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Height (cm)</label>
+                    {{ form.height }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Leg Color</label>
+                    {{ form.leg_color }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Eye Color</label>
+                    {{ form.eye_color }}
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Plumage Color</label>
+                    {{ form.plumage_color }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Plumage Pattern</label>
+                    {{ form.plumage_pattern }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Comb Type</label>
+                    {{ form.comb_type }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Image & Notes Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Image & Notes</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Photo</label>
+                    {% if object and object.image %}
+                        <div class="mb-4">
+                            <img src="{{ object.image.url }}" alt="{{ object.name }}" class="w-32 h-32 rounded-xl object-cover">
+                        </div>
+                    {% endif %}
+                    {{ form.image }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    {{ form.notes }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-4">
+            <a href="{% if object %}{% url 'fowl:detail' object.pk %}{% else %}{% url 'fowl:list' %}{% endif %}"
+               class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium">
+                Cancel
+            </a>
+            <button type="submit" class="px-8 py-3 gradient-primary text-white font-medium rounded-xl hover:shadow-lg transition-shadow">
+                {{ submit_text }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

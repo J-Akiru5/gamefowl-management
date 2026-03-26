@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Bloodlines{% endblock %}
+{% block page_subtitle %}Manage bloodline strains{% endblock %}
+
+{% block content %}
+<!-- Search -->
+<div class="glass-card rounded-2xl p-4 mb-6">
+    <form method="get" class="flex gap-4">
+        <input type="text" name="search" value="{{ search }}" placeholder="Search bloodlines..."
+               class="flex-1 px-4 py-3 rounded-xl bg-white/50 border border-white/30 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500">
+        <button type="submit" class="px-6 py-3 gradient-primary text-white font-medium rounded-xl hover:shadow-lg transition-shadow">
+            Search
+        </button>
+    </form>
+</div>
+
+<!-- Bloodlines Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for bloodline in bloodlines %}
+    <div class="glass-card rounded-2xl overflow-hidden card-hover">
+        <div class="p-6">
+            <div class="flex items-start justify-between mb-3">
+                <h3 class="text-lg font-bold text-gray-800">{{ bloodline.name }}</h3>
+                {% if bloodline.is_predefined %}
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">System</span>
+                {% endif %}
+            </div>
+
+            {% if bloodline.origin %}
+                <p class="text-sm text-gray-500 mb-2">{{ bloodline.origin }}</p>
+            {% endif %}
+
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                {{ bloodline.description|default:"No description available." }}
+            </p>
+
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                <span class="text-sm text-gray-500">{{ bloodline.fowl_count }} fowl</span>
+                <div class="flex space-x-2">
+                    <a href="{% url 'fowl:bloodline_detail' bloodline.pk %}" class="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </a>
+                    {% if not bloodline.is_predefined %}
+                    <a href="{% url 'fowl:bloodline_update' bloodline.pk %}" class="p-2 rounded-lg hover:bg-blue-100 text-blue-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-12">
+        <p class="text-gray-500 mb-4">No bloodlines found</p>
+        <a href="{% url 'fowl:bloodline_create' %}" class="inline-flex items-center px-4 py-2 gradient-primary text-white rounded-xl">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add Bloodline
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="flex justify-center mt-8">
+    <nav class="flex items-center space-x-2">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" class="px-4 py-2 rounded-xl glass-card hover:bg-white/50">Previous</a>
+        {% endif %}
+        <span class="px-4 py-2 text-gray-600">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}" class="px-4 py-2 rounded-xl glass-card hover:bg-white/50">Next</a>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,128 @@
+<!-- Top Navigation Bar -->
+<div class="flex items-center justify-between px-4 py-3 md:px-6">
+    <!-- Left: Mobile menu button + Page title -->
+    <div class="flex items-center space-x-4">
+        <!-- Mobile menu toggle -->
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        <!-- Page Title -->
+        <div>
+            <h1 class="text-lg md:text-xl font-bold text-gray-800">
+                {% block page_title %}Dashboard{% endblock %}
+            </h1>
+            <p class="text-xs md:text-sm text-gray-500 hidden sm:block">
+                {% block page_subtitle %}Welcome back, {{ user.username }}{% endblock %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Right: Actions -->
+    <div class="flex items-center space-x-2 md:space-x-4">
+        <!-- Quick Add Button -->
+        <div class="relative" x-data="{ open: false }">
+            <button onclick="toggleQuickAdd()" class="p-2 md:px-4 md:py-2 gradient-primary text-white rounded-xl hover:shadow-lg transition-shadow flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span class="hidden md:inline font-medium">Quick Add</span>
+            </button>
+
+            <!-- Dropdown -->
+            <div id="quick-add-dropdown" class="hidden absolute right-0 mt-2 w-48 glass-card rounded-xl shadow-lg py-2 z-50">
+                <a href="{% url 'fowl:create' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-red-50 text-gray-700 hover:text-red-600 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <span>Add Fowl</span>
+                </a>
+                <a href="{% url 'fights:schedule' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-red-50 text-gray-700 hover:text-red-600 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Schedule Fight</span>
+                </a>
+                <a href="{% url 'fowl:bloodline_create' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-blue-50 text-gray-700 hover:text-blue-600 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Add Bloodline</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Notifications (placeholder) -->
+        <button class="p-2 rounded-xl hover:bg-gray-100 text-gray-600 relative">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <!-- Notification badge -->
+            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        </button>
+
+        <!-- User Menu (Desktop) -->
+        <div class="hidden md:block relative">
+            <button onclick="toggleUserMenu()" class="flex items-center space-x-2 p-2 rounded-xl hover:bg-gray-100 transition-colors">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+                {% else %}
+                    <div class="w-8 h-8 gradient-primary rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-bold">{{ user.username|first|upper }}</span>
+                    </div>
+                {% endif %}
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <!-- User Dropdown -->
+            <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-56 glass-card rounded-xl shadow-lg py-2 z-50">
+                <div class="px-4 py-3 border-b border-gray-100">
+                    <p class="text-sm font-medium text-gray-800">{{ user.profile.display_name }}</p>
+                    <p class="text-xs text-gray-500">{{ user.email }}</p>
+                </div>
+                <a href="{% url 'accounts:profile' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 text-gray-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>Profile Settings</span>
+                </a>
+                <hr class="my-2">
+                <a href="{% url 'accounts:logout' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-red-50 text-red-600 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleQuickAdd() {
+        const dropdown = document.getElementById('quick-add-dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    function toggleUserMenu() {
+        const dropdown = document.getElementById('user-menu-dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const quickAdd = document.getElementById('quick-add-dropdown');
+        const userMenu = document.getElementById('user-menu-dropdown');
+
+        if (!e.target.closest('[onclick="toggleQuickAdd()"]') && !e.target.closest('#quick-add-dropdown')) {
+            quickAdd?.classList.add('hidden');
+        }
+        if (!e.target.closest('[onclick="toggleUserMenu()"]') && !e.target.closest('#user-menu-dropdown')) {
+            userMenu?.classList.add('hidden');
+        }
+    });
+</script>

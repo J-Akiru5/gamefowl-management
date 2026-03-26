@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}{% if is_admin %}All Data Overview{% else %}Welcome back, {{ user.profile.display_name }}{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <!-- Total Fowl -->
+    <div class="glass-card rounded-2xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Total Fowl</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ stats.total_fowl }}</p>
+                <p class="text-xs text-green-600 mt-1">{{ stats.active_fowl }} active</p>
+            </div>
+            <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Fights -->
+    <div class="glass-card rounded-2xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Total Fights</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ stats.total_fights }}</p>
+                <p class="text-xs text-blue-600 mt-1">{{ stats.completed_fights }} completed</p>
+            </div>
+            <div class="w-12 h-12 gradient-accent rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Rate -->
+    <div class="glass-card rounded-2xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Win Rate</p>
+                <p class="text-3xl font-bold {% if stats.win_rate >= 50 %}text-green-600{% else %}text-red-600{% endif %} mt-1">{{ stats.win_rate }}%</p>
+                <p class="text-xs text-gray-500 mt-1">{{ stats.wins }}W / {{ stats.losses }}L</p>
+            </div>
+            <div class="w-12 h-12 {% if stats.win_rate >= 50 %}bg-green-500{% else %}bg-red-500{% endif %} rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="glass-card rounded-2xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Upcoming</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ stats.upcoming_fights }}</p>
+                <p class="text-xs text-amber-600 mt-1">scheduled fights</p>
+            </div>
+            <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Win/Loss Chart -->
+    {% if win_loss_chart %}
+    <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Win/Loss Ratio</h3>
+        <div class="flex justify-center">
+            <img src="{{ win_loss_chart }}" alt="Win/Loss Chart" class="max-w-full h-auto">
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Fights Per Month Chart -->
+    {% if fights_per_month_chart %}
+    <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Fights Per Month</h3>
+        <div class="flex justify-center">
+            <img src="{{ fights_per_month_chart }}" alt="Fights Per Month" class="max-w-full h-auto">
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Second Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Breed Distribution -->
+    {% if breed_distribution_chart %}
+    <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Breed Distribution</h3>
+        <div class="flex justify-center">
+            <img src="{{ breed_distribution_chart }}" alt="Breed Distribution" class="max-w-full h-auto">
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Fowl Status -->
+    {% if fowl_status_chart %}
+    <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Fowl Status</h3>
+        <div class="flex justify-center">
+            <img src="{{ fowl_status_chart }}" alt="Fowl Status" class="max-w-full h-auto">
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Activity Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Upcoming Fights -->
+    <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-white/20 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-800">Upcoming Fights</h3>
+            <a href="{% url 'fights:upcoming' %}" class="text-sm text-red-600 hover:text-red-700">View All</a>
+        </div>
+        <div class="divide-y divide-gray-100">
+            {% for fight in upcoming_fights %}
+            <a href="{% url 'fights:detail' fight.pk %}" class="flex items-center p-4 hover:bg-white/50 transition-colors">
+                <div class="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">{{ fight.fowl.name }}</p>
+                    <p class="text-xs text-gray-500">{{ fight.arena_name }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-medium text-gray-800">{{ fight.scheduled_datetime|date:"M d" }}</p>
+                    <p class="text-xs text-gray-500">{{ fight.scheduled_datetime|time:"g:i A" }}</p>
+                </div>
+            </a>
+            {% empty %}
+            <div class="p-6 text-center text-gray-500">
+                <p>No upcoming fights</p>
+                <a href="{% url 'fights:schedule' %}" class="text-red-600 hover:text-red-700 text-sm mt-1 inline-block">Schedule one now</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Fights -->
+    <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-white/20 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-800">Recent Results</h3>
+            <a href="{% url 'fights:list' %}" class="text-sm text-red-600 hover:text-red-700">View All</a>
+        </div>
+        <div class="divide-y divide-gray-100">
+            {% for fight in recent_fights %}
+            <a href="{% url 'fights:detail' fight.pk %}" class="flex items-center p-4 hover:bg-white/50 transition-colors">
+                <div class="w-10 h-10 {% if fight.is_win %}bg-green-500{% elif fight.is_loss %}bg-red-500{% else %}bg-gray-500{% endif %} rounded-lg flex items-center justify-center mr-3">
+                    <span class="text-white font-bold text-sm">{{ fight.result|first|upper }}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">{{ fight.fowl.name }}</p>
+                    <p class="text-xs text-gray-500">vs {{ fight.opponent_name|default:"Unknown" }}</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full {{ fight.result_display.class }} bg-opacity-20">
+                    {{ fight.result_display.text }}
+                </span>
+            </a>
+            {% empty %}
+            <div class="p-6 text-center text-gray-500">
+                <p>No recent fights</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recently Added Fowl -->
+    <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-white/20 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-800">Recent Fowl</h3>
+            <a href="{% url 'fowl:list' %}" class="text-sm text-red-600 hover:text-red-700">View All</a>
+        </div>
+        <div class="divide-y divide-gray-100">
+            {% for fowl in recent_fowl %}
+            <a href="{% url 'fowl:detail' fowl.pk %}" class="flex items-center p-4 hover:bg-white/50 transition-colors">
+                {% if fowl.image %}
+                    <img src="{{ fowl.image.url }}" alt="{{ fowl.name }}" class="w-10 h-10 rounded-lg object-cover mr-3">
+                {% else %}
+                    <div class="w-10 h-10 gradient-accent rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-sm">{{ fowl.name|first|upper }}</span>
+                    </div>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">{{ fowl.name }}</p>
+                    <p class="text-xs text-gray-500">{{ fowl.breed|default:"No breed" }}</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full {% if fowl.gender == 'male' %}bg-blue-100 text-blue-800{% else %}bg-pink-100 text-pink-800{% endif %}">
+                    {{ fowl.get_gender_display|slice:":4" }}
+                </span>
+            </a>
+            {% empty %}
+            <div class="p-6 text-center text-gray-500">
+                <p>No fowl added yet</p>
+                <a href="{% url 'fowl:create' %}" class="text-red-600 hover:text-red-700 text-sm mt-1 inline-block">Add your first fowl</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

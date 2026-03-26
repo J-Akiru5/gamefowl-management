@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block page_title %}{{ fowl.name }}{% endblock %}
+{% block page_subtitle %}{{ fowl.breed|default:"Gamefowl" }} • {{ fowl.get_gender_display }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Info Column -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Hero Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="md:flex">
+                <!-- Image -->
+                <div class="md:w-1/3">
+                    {% if fowl.image %}
+                        <img src="{{ fowl.image.url }}" alt="{{ fowl.name }}" class="w-full h-64 md:h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-64 md:h-full gradient-primary flex items-center justify-center">
+                            <svg class="w-24 h-24 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Details -->
+                <div class="md:w-2/3 p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">{{ fowl.name }}</h1>
+                            {% if fowl.wing_band %}
+                                <p class="text-gray-500">{{ fowl.wing_band }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex space-x-2">
+                            <a href="{% url 'fowl:update' fowl.pk %}" class="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1 rounded-full text-sm font-medium {% if fowl.gender == 'male' %}bg-blue-100 text-blue-800{% else %}bg-pink-100 text-pink-800{% endif %}">
+                            {{ fowl.get_gender_display }}
+                        </span>
+                        <span class="px-3 py-1 rounded-full text-sm font-medium {% if fowl.status == 'active' %}bg-green-100 text-green-800{% elif fowl.status == 'breeding' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ fowl.get_status_display }}
+                        </span>
+                        {% if fowl.breed %}
+                            <span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                {{ fowl.breed }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Age</p>
+                            <p class="text-sm font-medium text-gray-800">{{ fowl.age_display }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Weight</p>
+                            <p class="text-sm font-medium text-gray-800">{{ fowl.weight|default:"-" }} kg</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Fights</p>
+                            <p class="text-sm font-medium text-gray-800">{{ fight_stats.total }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Win Rate</p>
+                            <p class="text-sm font-medium {% if fight_stats.wins > fight_stats.losses %}text-green-600{% elif fight_stats.losses > fight_stats.wins %}text-red-600{% else %}text-gray-800{% endif %}">
+                                {% if fight_stats.total > 0 %}
+                                    {% widthratio fight_stats.wins fight_stats.total 100 %}%
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloodline Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">Bloodline Composition</h3>
+                <a href="{% url 'fowl:bloodlines_edit' fowl.pk %}" class="text-sm text-blue-600 hover:text-blue-700">Edit</a>
+            </div>
+            <div class="p-6">
+                {% if bloodline_data.percentages %}
+                    <div class="space-y-3">
+                        {% for bl in bloodline_data.percentages %}
+                            <div class="flex items-center">
+                                <div class="w-24 text-sm text-gray-600">{{ bl.name }}</div>
+                                <div class="flex-1 mx-4">
+                                    <div class="h-4 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full gradient-primary rounded-full" style="width: {{ bl.percentage }}%"></div>
+                                    </div>
+                                </div>
+                                <div class="w-16 text-right">
+                                    <span class="text-sm font-medium text-gray-800">{{ bl.percentage|floatformat:1 }}%</span>
+                                    {% if bl.is_manual %}
+                                        <span class="text-xs text-blue-500">*</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if not bloodline_data.is_complete %}
+                        <p class="text-xs text-amber-600 mt-4">⚠ Bloodlines total {{ bloodline_data.total|floatformat:1 }}% (should be 100%)</p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-gray-500 text-center py-4">No bloodline data available</p>
+                    <div class="text-center">
+                        <a href="{% url 'fowl:bloodlines_edit' fowl.pk %}" class="text-red-600 hover:text-red-700 text-sm">Add bloodlines</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Lineage Card -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Lineage</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Sire -->
+                    <div>
+                        <p class="text-sm text-gray-500 mb-2">Sire (Father)</p>
+                        {% if fowl.sire %}
+                            <a href="{% url 'fowl:detail' fowl.sire.pk %}" class="flex items-center p-3 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors">
+                                {% if fowl.sire.image %}
+                                    <img src="{{ fowl.sire.image.url }}" class="w-10 h-10 rounded-lg object-cover mr-3">
+                                {% else %}
+                                    <div class="w-10 h-10 bg-blue-200 rounded-lg flex items-center justify-center mr-3">
+                                        <span class="text-blue-600 font-bold">♂</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ fowl.sire.name }}</p>
+                                    <p class="text-xs text-gray-500">{{ fowl.sire.breed|default:"Unknown breed" }}</p>
+                                </div>
+                            </a>
+                        {% else %}
+                            <div class="p-3 rounded-xl bg-gray-50 text-gray-400 text-center">
+                                Unknown
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dam -->
+                    <div>
+                        <p class="text-sm text-gray-500 mb-2">Dam (Mother)</p>
+                        {% if fowl.dam %}
+                            <a href="{% url 'fowl:detail' fowl.dam.pk %}" class="flex items-center p-3 rounded-xl bg-pink-50 hover:bg-pink-100 transition-colors">
+                                {% if fowl.dam.image %}
+                                    <img src="{{ fowl.dam.image.url }}" class="w-10 h-10 rounded-lg object-cover mr-3">
+                                {% else %}
+                                    <div class="w-10 h-10 bg-pink-200 rounded-lg flex items-center justify-center mr-3">
+                                        <span class="text-pink-600 font-bold">♀</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ fowl.dam.name }}</p>
+                                    <p class="text-xs text-gray-500">{{ fowl.dam.breed|default:"Unknown breed" }}</p>
+                                </div>
+                            </a>
+                        {% else %}
+                            <div class="p-3 rounded-xl bg-gray-50 text-gray-400 text-center">
+                                Unknown
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Column -->
+    <div class="space-y-6">
+        <!-- Fight Stats -->
+        <div class="glass-card rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Fight Record</h3>
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="p-4 bg-green-50 rounded-xl">
+                    <p class="text-3xl font-bold text-green-600">{{ fight_stats.wins }}</p>
+                    <p class="text-sm text-gray-600">Wins</p>
+                </div>
+                <div class="p-4 bg-red-50 rounded-xl">
+                    <p class="text-3xl font-bold text-red-600">{{ fight_stats.losses }}</p>
+                    <p class="text-sm text-gray-600">Losses</p>
+                </div>
+            </div>
+            <a href="{% url 'fights:schedule' %}?fowl={{ fowl.pk }}" class="mt-4 block text-center px-4 py-2 gradient-primary text-white rounded-xl hover:shadow-lg transition-shadow">
+                Schedule Fight
+            </a>
+        </div>
+
+        <!-- Siblings -->
+        {% if full_siblings or half_siblings_sire or half_siblings_dam %}
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Siblings</h3>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for sibling in full_siblings %}
+                    <a href="{% url 'fowl:detail' sibling.pk %}" class="flex items-center p-4 hover:bg-white/50 transition-colors">
+                        <div class="w-8 h-8 {% if sibling.gender == 'male' %}bg-blue-100{% else %}bg-pink-100{% endif %} rounded-full flex items-center justify-center mr-3">
+                            <span class="text-xs font-bold {% if sibling.gender == 'male' %}text-blue-600{% else %}text-pink-600{% endif %}">
+                                {% if sibling.gender == 'male' %}♂{% else %}♀{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">{{ sibling.name }}</p>
+                            <p class="text-xs text-green-600">Full sibling</p>
+                        </div>
+                    </a>
+                {% endfor %}
+                {% for sibling in half_siblings_sire|slice:":3" %}
+                    <a href="{% url 'fowl:detail' sibling.pk %}" class="flex items-center p-4 hover:bg-white/50 transition-colors">
+                        <div class="w-8 h-8 {% if sibling.gender == 'male' %}bg-blue-100{% else %}bg-pink-100{% endif %} rounded-full flex items-center justify-center mr-3">
+                            <span class="text-xs font-bold {% if sibling.gender == 'male' %}text-blue-600{% else %}text-pink-600{% endif %}">
+                                {% if sibling.gender == 'male' %}♂{% else %}♀{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">{{ sibling.name }}</p>
+                            <p class="text-xs text-blue-600">Half (same sire)</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Offspring -->
+        {% if offspring %}
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Offspring ({{ fowl.offspring_count }})</h3>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for child in offspring %}
+                    <a href="{% url 'fowl:detail' child.pk %}" class="flex items-center p-4 hover:bg-white/50 transition-colors">
+                        <div class="w-8 h-8 {% if child.gender == 'male' %}bg-blue-100{% else %}bg-pink-100{% endif %} rounded-full flex items-center justify-center mr-3">
+                            <span class="text-xs font-bold {% if child.gender == 'male' %}text-blue-600{% else %}text-pink-600{% endif %}">
+                                {% if child.gender == 'male' %}♂{% else %}♀{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">{{ child.name }}</p>
+                            <p class="text-xs text-gray-500">{{ child.breed|default:"" }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Fights -->
+        {% if recent_fights %}
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Recent Fights</h3>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for fight in recent_fights %}
+                    <a href="{% url 'fights:detail' fight.pk %}" class="flex items-center p-4 hover:bg-white/50 transition-colors">
+                        <div class="w-8 h-8 {% if fight.is_win %}bg-green-100{% elif fight.is_loss %}bg-red-100{% else %}bg-gray-100{% endif %} rounded-full flex items-center justify-center mr-3">
+                            <span class="text-xs font-bold {% if fight.is_win %}text-green-600{% elif fight.is_loss %}text-red-600{% else %}text-gray-600{% endif %}">
+                                {{ fight.result|first|upper|default:"?" }}
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">{{ fight.arena_name }}</p>
+                            <p class="text-xs text-gray-500">{{ fight.scheduled_datetime|date:"M d, Y" }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

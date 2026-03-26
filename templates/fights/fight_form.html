@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}{% if object %}Edit fight details{% else %}Schedule a new fight{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Fowl Selection -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20 gradient-primary">
+                <h3 class="text-lg font-bold text-white">Select Fowl</h3>
+            </div>
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fowl to Fight *</label>
+                {{ form.fowl }}
+                {% if form.fowl.errors %}<p class="text-red-500 text-xs mt-1">{{ form.fowl.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <!-- Fight Details -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Fight Details</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Event Name</label>
+                        {{ form.event_name }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date & Time *</label>
+                        {{ form.scheduled_datetime }}
+                        {% if form.scheduled_datetime.errors %}<p class="text-red-500 text-xs mt-1">{{ form.scheduled_datetime.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Arena Name *</label>
+                        {{ form.arena_name }}
+                        {% if form.arena_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.arena_name.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Arena Location</label>
+                        {{ form.arena_location }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opponent Info -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Opponent Information</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Opponent Name</label>
+                        {{ form.opponent_name }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Opponent Breed</label>
+                        {{ form.opponent_breed }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Opponent Weight (kg)</label>
+                        {{ form.opponent_weight }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Fowl Weight (kg)</label>
+                        {{ form.fowl_weight_at_fight }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/20">
+                <h3 class="text-lg font-bold text-gray-800">Notes</h3>
+            </div>
+            <div class="p-6">
+                {{ form.notes }}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'fights:list' %}" class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium">Cancel</a>
+            <button type="submit" class="px-8 py-3 gradient-primary text-white font-medium rounded-xl hover:shadow-lg transition-shadow">
+                {{ submit_text }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

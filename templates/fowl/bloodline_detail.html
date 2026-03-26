@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ bloodline.name }}{% endblock %}
+{% block page_subtitle %}Bloodline Details{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Bloodline Info -->
+    <div class="glass-card rounded-2xl overflow-hidden mb-6">
+        <div class="gradient-accent p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">{{ bloodline.name }}</h1>
+                    {% if bloodline.origin %}
+                        <p class="text-white/80">{{ bloodline.origin }}</p>
+                    {% endif %}
+                </div>
+                {% if bloodline.is_predefined %}
+                    <span class="px-3 py-1 bg-white/20 text-white rounded-full text-sm">System Bloodline</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-600">{{ bloodline.description|default:"No description available." }}</p>
+        </div>
+    </div>
+
+    <!-- Fowl with this Bloodline -->
+    <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-white/20">
+            <h3 class="text-lg font-bold text-gray-800">Fowl with {{ bloodline.name }} Bloodline</h3>
+        </div>
+        <div class="divide-y divide-gray-100">
+            {% for fb in fowl_bloodlines %}
+            <a href="{% url 'fowl:detail' fb.fowl.pk %}" class="flex items-center justify-between p-4 hover:bg-white/50 transition-colors">
+                <div class="flex items-center">
+                    {% if fb.fowl.image %}
+                        <img src="{{ fb.fowl.image.url }}" class="w-10 h-10 rounded-lg object-cover mr-3">
+                    {% else %}
+                        <div class="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold">{{ fb.fowl.name|first|upper }}</span>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <p class="font-medium text-gray-800">{{ fb.fowl.name }}</p>
+                        <p class="text-xs text-gray-500">{{ fb.fowl.breed|default:"" }}</p>
+                    </div>
+                </div>
+                <span class="text-red-600 font-bold">{{ fb.percentage|floatformat:1 }}%</span>
+            </a>
+            {% empty %}
+            <div class="p-6 text-center text-gray-500">
+                No fowl with this bloodline yet.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
