@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Delete Bloodline{% endblock %}
+{% block page_subtitle %}This action cannot be undone{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="glass-card rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/20 flex items-center gap-4">
+            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Delete Bloodline</h2>
+                <p class="text-sm text-gray-500">Are you sure you want to remove this bloodline?</p>
+            </div>
+        </div>
+
+        <div class="p-6 space-y-3">
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2 text-sm text-gray-700">
+                <div class="flex justify-between">
+                    <span class="font-medium text-gray-500">Name</span>
+                    <span class="font-semibold text-gray-800">{{ object.name }}</span>
+                </div>
+                {% if object.origin %}
+                <div class="flex justify-between">
+                    <span class="font-medium text-gray-500">Origin</span>
+                    <span>{{ object.origin }}</span>
+                </div>
+                {% endif %}
+                {% if object.description %}
+                <div class="flex justify-between">
+                    <span class="font-medium text-gray-500">Description</span>
+                    <span class="text-right max-w-xs">{{ object.description|truncatewords:10 }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <p class="text-sm text-red-600 font-medium">
+                ⚠ Deleting this bloodline will also remove all associated bloodline percentages from fowl records.
+            </p>
+        </div>
+
+        <div class="px-6 pb-6 flex gap-3">
+            <a href="{% url 'fowl:bloodline_list' %}"
+               class="flex-1 text-center py-3 px-4 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                Cancel
+            </a>
+            <form method="post" class="flex-1">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full py-3 px-4 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors">
+                    Delete Bloodline
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
